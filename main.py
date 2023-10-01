@@ -13,9 +13,7 @@ from FUSI.userinfo import userinfo
 from TG_BOT.keyboards import keyboards
 from COMMON.keep_alive import keep_alive
 
-
 cg.PATH = os.getcwd()
-
 
 bot = Client('render-fusi-auto',
              api_id=os.environ['API_ID'],
@@ -81,97 +79,120 @@ async def callback_query(client, call):
     cid = call.message.chat.id
     mid = call.message.id
 
-    try:
-        uid = int(call.data.split('.')[1])
-    except IndexError:
-        uid = 0
+    # try:
+    #     uid = int(call.data.split('.')[1])
+    # except IndexError:
+    #     uid = 0
 
     # CLOSE
-    if call.data.startswith('close'):
-        await pyrostep.unregister_steps(uid)
+    if call.data == 'close':
+        await pyrostep.unregister_steps(cid)
         await bot.delete_messages(cid, mid)
-        del user_menu[uid]
+        del user_menu[cid]
 
     # MENU
-    if call.data.startswith('menu'):
+    if call.data == 'menu':
         await bot.edit_message_text(cid, mid, 'MAIN MENU'
                                               '\n\nSelect option',
-                                    reply_markup=keyboards('menu', uid))
+                                    reply_markup=keyboards('menu'))
 
     # FREQUENCY
-    if call.data.startswith('freq_main'):
-        if uid is not None:
-            await pyrostep.unregister_steps(uid)
+    if call.data == 'freq_main':
+        await pyrostep.unregister_steps(cid)
         await bot.edit_message_text(cid, mid, f'Set monitor refresh frequency in seconds'
                                               f'\n\nCurrent frequency : {cg.refresh_freq}s',
-                                    reply_markup=keyboards('freq_main', uid))
+                                    reply_markup=keyboards('freq_main'))
 
-    if call.data.startswith('freq_set'):
+    if call.data == 'freq_set':
         await bot.edit_message_text(cid, mid, f'Set monitor refresh frequency in seconds'
                                               f'\n\nCurrent frequency : {cg.refresh_freq}s'
                                               f'\n\nEnter value in seconds (min 0 - 60 max) 💬',
-                                    reply_markup=keyboards('freq_back', uid))
-        await pyrostep.register_next_step(uid, freq_set)
+                                    reply_markup=keyboards('freq_back'))
+        await pyrostep.register_next_step(cid, freq_set)
 
     # VIDEO TARGET
-    if call.data.startswith('target_main'):
-        await pyrostep.unregister_steps(uid)
+    if call.data == 'target_main':
+        await pyrostep.unregister_steps(cid)
         if cg.target is None:
             await bot.edit_message_text(cid, mid, f'Set basic target group for videos',
-                                        reply_markup=keyboards('target_main', uid))
+                                        reply_markup=keyboards('target_main'))
         else:
             await bot.edit_message_text(cid, mid, f'Change basic target group for videos'
                                                   f'\n\nCurrent target ID : {cg.target}',
-                                        reply_markup=keyboards('target_main', uid))
+                                        reply_markup=keyboards('target_main'))
 
-    if call.data.startswith('target_set'):
+    if call.data == 'target_set':
         if cg.target is None:
             await bot.edit_message_text(cid, mid, f'Set basic target group for videos'
                                                   f'\n\nEnter group ID 💬',
-                                        reply_markup=keyboards('target_back', uid))
+                                        reply_markup=keyboards('target_back'))
         else:
             await bot.edit_message_text(cid, mid, f'Change basic target group for videos'
                                                   f'\n\nCurrent target ID : {cg.target}'
                                                   f'\n\nEnter group ID 💬',
-                                        reply_markup=keyboards('target_back', uid))
-        await pyrostep.register_next_step(uid, target_set)
+                                        reply_markup=keyboards('target_back'))
+        await pyrostep.register_next_step(cid, target_set)
 
     # ERROR TARGET
-    if call.data.startswith('error_main'):
-        await pyrostep.unregister_steps(uid)
+    if call.data == 'error_main':
+        await pyrostep.unregister_steps(cid)
         if cg.target is None:
             await bot.edit_message_text(cid, mid, f'Set basic target group for errors',
-                                        reply_markup=keyboards('error_main', uid))
+                                        reply_markup=keyboards('error_main'))
         else:
             await bot.edit_message_text(cid, mid, f'Change basic target group for errors'
                                                   f'\n\nCurrent errors log ID : {cg.errors}',
-                                        reply_markup=keyboards('error_main', uid))
+                                        reply_markup=keyboards('error_main'))
 
-    if call.data.startswith('error_set'):
+    if call.data == 'error_set':
         if cg.target is None:
             await bot.edit_message_text(cid, mid, f'Set basic target group for errors'
                                                   f'\n\nEnter errors log group ID 💬',
-                                        reply_markup=keyboards('error_back', uid))
+                                        reply_markup=keyboards('error_back'))
         else:
             await bot.edit_message_text(cid, mid, f'Change basic target group for errors'
                                                   f'\n\nCurrent errors log ID : {cg.errors}'
                                                   f'\n\nEnter errors log group ID 💬',
-                                        reply_markup=keyboards('error_back', uid))
-        await pyrostep.register_next_step(uid, error_set)
+                                        reply_markup=keyboards('error_back'))
+        await pyrostep.register_next_step(cid, error_set)
 
     # FUSI TOKEN
-        if call.data.startswith('ftoken_main'):
+    if call.data == 'ftoken_main':
+        await bot.edit_message_text(cid, mid, f'Set/change FUSI token'
+                                              f'\n\nCurrent token : {cg.fs_user_token}',
+                                    reply_markup=keyboards('ftoken_set'))
 
-            await bot.edit_message_text(cid, mid, f'Set/change FUSI token'
-                                                  f'\n\nCurrent token : {cg.fs_user_token}',
-                                        reply_markup=keyboards('ftoken_set', uid))
+    if call.data == 'ftoken_set':
+        await bot.edit_message_text(cid, mid, f'Set/change FUSI token'
+                                              f'\n\nCurrent token : {cg.fs_user_token}'
+                                              f'\n\nEnter token 💬',
+                                    reply_markup=keyboards('ftoken_back'))
+        await pyrostep.register_next_step(cid, ftoken_set)
 
-        if call.data.startswith('ftoken_set'):
-            await bot.edit_message_text(cid, mid, f'Set/change FUSI token'
-                                                  f'\n\nCurrent token : {cg.fs_user_token}'
-                                                  f'\n\nEnter token 💬',
-                                        reply_markup=keyboards('ftoken_back', uid))
-            await pyrostep.register_next_step(uid, ftoken_set)
+    # VID FILES
+    if call.data == 'files_main':
+        cg.vid_files = os.listdir(f'{cg.PATH}\VIDS')
+        await bot.edit_message_text(cid, mid, 'Available video files',
+                                    reply_markup=keyboards('files'))
+
+    if call.data == 'files_close':
+        await bot.delete_messages(cid, mid)
+        cg.vid_files.clear()
+
+    if call.data.startswith('del_file'):
+        index = int(call.data.split('.')[1])
+        await bot.edit_message_text(cid, mid, f'Are you sure to delete file'
+                                              f'\n\n{cg.vid_files[index]}',
+                                    reply_markup=keyboards('files_sure', index))
+
+    if call.data.startswith('files_yes'):
+        index = int(call.data.split('.')[1])
+        file = cg.vid_files[index]
+        os.remove(f'{cg.PATH}/VIDS/{file}')
+        cg.vid_files = os.listdir(f'{cg.PATH}\VIDS')
+        await bot.edit_message_text(cid, mid, 'Available video files',
+                                    reply_markup=keyboards('files'))
+        await bot.answer_callback_query(call.id, f'✅ Video deleted', show_alert=True)
 
     # UNLOCK
     if call.data.startswith('unlock'):
@@ -281,7 +302,6 @@ async def freq_set(client, msg):
 
 
 async def target_set(client, msg):
-
     cid = msg.chat.id
     uid = msg.from_user.id
     mid = user_menu[uid].id
@@ -467,7 +487,7 @@ if __name__ == '__main__':
     else:
         bot.send_message(cg.MASTER, 'Fusi token / userID unset')
 
-    keep_alive()
+    # keep_alive()
 
     print(f'{now_is()} - {cg.GREEN}BOT STARTED{cg.RESET}\n')
     idle()

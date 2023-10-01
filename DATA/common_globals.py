@@ -32,3 +32,4 @@ notify_users = set()
 
 
 current_records = set()
+vid_files = []

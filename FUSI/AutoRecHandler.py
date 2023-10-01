@@ -1,3 +1,4 @@
+import io
 import os
 from threading import Thread, Lock
 from FUSI.GetLink import GetLink
@@ -44,7 +45,6 @@ class AutoRecHandler(Thread):
                 if status:
                     filename = rec.filename
                     data = get_video_data(filename)
-                    # tg_filename = filename[filename.rfind('/') + 1:]
                     tg_filename = filename.split('/')[-1]
                     uid = self.live_data['uid']
                     name = self.live_data['name']
@@ -73,7 +73,7 @@ class AutoRecHandler(Thread):
                                                      duration=data['duration'],
                                                      width=data['width'],
                                                      height=data['height'],
-                                                     thumb=thumbs,
+                                                     thumb=io.BytesIO(thumbs),
                                                      file_name=tg_filename)
                             # if bm is not None:
                             #     os.remove(thumbs)
