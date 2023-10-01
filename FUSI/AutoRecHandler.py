@@ -44,7 +44,8 @@ class AutoRecHandler(Thread):
                 if status:
                     filename = rec.filename
                     data = get_video_data(filename)
-                    tg_filename = filename[filename.rfind('/') + 1:]
+                    # tg_filename = filename[filename.rfind('/') + 1:]
+                    tg_filename = filename.split('/')[-1]
                     uid = self.live_data['uid']
                     name = self.live_data['name']
                     title = self.live_data['title']
@@ -53,6 +54,7 @@ class AutoRecHandler(Thread):
                                f'{caption[4]}:{caption[5]}:{caption[6]}'
                                f'\n\nFUSI ID : {uid}'
                                f'\nNAME : {name}'
+                               f'\nCOUNTRY : {link.country}'
                                f'\nTITLE : {title}')
 
                     if data['size'] < 10485760:  # 10 MB MINIMUM TO SET THUMBNAILS ON TELEGRAM
@@ -73,8 +75,8 @@ class AutoRecHandler(Thread):
                                                      height=data['height'],
                                                      thumb=thumbs,
                                                      file_name=tg_filename)
-                            if bm is not None:
-                                os.remove(thumbs)
+                            # if bm is not None:
+                            #     os.remove(thumbs)
 
                         else:
                             bm = self.bot.send_video(cg.target, filename,
