@@ -466,7 +466,8 @@ if __name__ == '__main__':
         monitor.start()
     else:
         bot.send_message(cg.MASTER, 'Fusi token / userID unset')
-    # keep_alive()
+
+    keep_alive()
 
     print(f'{now_is()} - {cg.GREEN}BOT STARTED{cg.RESET}\n')
     idle()
